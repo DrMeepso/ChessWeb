@@ -1,0 +1,53 @@
+:root {
+
+    --BoxSize: 70px
+
+}
+
+#ChessHolder{
+
+    width: calc(var(--BoxSize) * 8);
+    height: calc(var(--BoxSize) * 8);
+    
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column-reverse;
+
+    background-color: gray;
+    border: solid;
+
+
+}
+
+.cell{
+
+    width: var(--BoxSize);
+    height: var(--BoxSize);
+
+
+}
+
+.white {
+    background-color: #EEEED2;
+    color: #769656;
+}
+.black {
+    background-color: #769656;
+    color: #EEEED2;
+}
+
+.text{
+
+    offset-position: left;
+
+}
+
+.piece{
+
+    width: var(--BoxSize);
+    height: var(--BoxSize);
+
+    offset-position: left;
+
+
+}
