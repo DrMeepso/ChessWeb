@@ -1,7 +1,13 @@
 :root {
 
-    --BoxSize: 70px
+    --BoxSize: 60px
 
+}
+
+#GameHolder{
+
+	display: flex;
+	
 }
 
 #ChessHolder{
@@ -17,6 +23,40 @@
     border: solid;
 
 
+}
+#CaptureHolder{
+
+	display: flex;
+	flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+	
+	width: calc(var(--BoxSize) * 4);
+	
+}
+.CaptureBox{
+
+	width: calc(var(--BoxSize) * 4);
+	height: calc(var(--BoxSize) * 4);
+	background-color: gray;
+	border: solid;
+	border-left: none;
+
+	display: flex;
+	flex-wrap: wrap;
+    align-content: flex-start;
+	
+}
+
+.CaptureBox[team="black"] {
+
+	border-bottom: none;
+	
+}
+.CaptureBox[team="white"] {
+
+	border-top: none;
+	
 }
 
 .cell{
