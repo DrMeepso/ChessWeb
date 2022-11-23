@@ -32,6 +32,10 @@
     justify-content: space-between;
 	
 	width: calc(var(--BoxSize) * 4);
+	height: calc(var(--BoxSize) * 8);
+
+	border: solid;
+	border-left: none;
 	
 }
 .CaptureBox{
@@ -39,8 +43,6 @@
 	width: calc(var(--BoxSize) * 4);
 	height: calc(var(--BoxSize) * 4);
 	background-color: gray;
-	border: solid;
-	border-left: none;
 
 	display: flex;
 	flex-wrap: wrap;
@@ -48,14 +50,31 @@
 	
 }
 
-.CaptureBox[team="black"] {
+@media (max-width: 600px) {
 
-	border-bottom: none;
+	:root {
+
+		--BoxSize: 40px	
+		
+	}
 	
-}
-.CaptureBox[team="white"] {
+	#GameHolder {
 
-	border-top: none;
+		flex-direction: column;
+		
+	}
+
+	#CaptureHolder {
+
+		height: calc(var(--BoxSize) * 4);
+		width: calc(var(--BoxSize) * 8);
+
+		flex-direction: row;
+
+		border: solid;
+		border-top: none;
+		
+	}
 	
 }
 
@@ -90,4 +109,22 @@
     offset-position: left;
 
 
+}
+
+#AIPlayer {
+
+	width: 150px;
+	margin-bottom: 15px;
+	
+}
+
+#AIPlayer > input {
+	margin-bottom: 0px
+}
+
+#AIPlayer > button {
+
+	width: 150px;
+	margin-bottom: 5px;
+	
 }

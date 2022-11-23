@@ -6,12 +6,17 @@
     <title>Chess LMAO</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='style.css'>
-    <script src='fen.js'></script>
-    <script src='script.js'></script>
+    <script src='chess.js'></script>
+    <script src='script.js' type="module"></script>
 </head>
 <body>
 
 	<h2 id="ScoreText">Score, White: 0 | Black: 0</h2>
+	<button id="CalcMove">Calc Move</button>
+	<select id="AIPlayerTurn">
+		<option value="white">White</option>
+  		<option value="black">Black</option>
+	</select>
 	<div id="GameHolder">
 		
     	<div id="ChessHolder">

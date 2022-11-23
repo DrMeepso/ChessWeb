@@ -1,3 +1,6 @@
+import fen2json from "/fen.js"
+import {Game, aiMove, getFen, move, moves, status} from "/chesslib/js-chess-engine.js"
+
 const ChessNumbers = ["A", "B", "C", "D", "E", "F", "G", "H"]
 
 // Create Cells for the chess board
@@ -68,7 +71,8 @@ setTimeout(() => {
 		piece.setAttribute("id", cellCords)
 		piece.setAttribute("src", `SVGs/${pieceName}.png`)
 		piece.setAttribute("draggable", "true")
-		piece.setAttribute("ondragstart", "drag(event)")
+		piece.ondragstart = drag
+		piece.addEventListener("touchstart", drag, false);
 		if (fen[key].split("")[1] == "w") {
 			piece.setAttribute("team", "white")
 		} else {
@@ -83,18 +87,46 @@ setTimeout(() => {
 
 // create a function that allows a user to drag a piece and drop it 
 function drag(ev) {
+	
+	var OrigParent = ev.target.parentElement
+	
 	document.body.append(ev.target)
 	ev.preventDefault()
 
-	document.onmousemove = function(e) {
-		ev.target.style.position = "absolute"
-		ev.target.style.left = e.pageX - (70 / 2) + "px"
-		ev.target.style.top = e.pageY - (70 / 2) + "px"
+	document.onmousemove = dragedPiece
+	document.addEventListener("touchmove", dragedPiece);
+
+	function dragedPiece(e) {
+		
+		if (e.pageX) {
+
+			//alert("PC")
+			
+			ev.target.style.position = "absolute"
+			ev.target.style.left = e.pageX - (70 / 2) + "px"
+			ev.target.style.top = e.pageY - (70 / 2) + "px"
+			
+		} else {
+
+			ev.target.style.position = "absolute"
+			ev.target.style.left = e.touches[0].pageX - (70 / 2) + "px"
+			ev.target.style.top = e.touches[0].pageY - (70 / 2) + "px"
+			
+		}
 	}
 
-	document.onmouseup = function(e) {
+
+	document.onmouseup = drop
+	document.addEventListener("touchend", drop, false);
+		
+	function drop(e) {
+		
 		document.onmousemove = null
 		document.onmouseup = null
+
+		document.removeEventListener("touchmove", dragedPiece)
+		document.removeEventListener("touchend", drop)
+
 
 		let cells = Object.values(document.getElementsByClassName("cell"))
 		let ClosestCell = cells[0]
@@ -127,10 +159,19 @@ function drag(ev) {
 			}
 
 		})
-		
-		ClosestCell.append(ev.target)
+
+		if (ClosestCellDist < 100){
+
+			ClosestCell.append(ev.target)
+			
+		} else {
+
+			OrigParent.append(ev.target)
+			
+		}
 
 		if (ClosestCell.childElementCount > 1) {
+			ClosestCell.childNodes[0].id = "Captured"
 			document.querySelector(`.CaptureBox[team=${ev.target.getAttribute("team")}]`).append(ClosestCell.childNodes[0])
 		}
 		
@@ -145,7 +186,7 @@ function drag(ev) {
 }
 
 function CalculateScore(){
-
+	
 	let WhiteBox = document.querySelector(`.CaptureBox[team="white"]`).childNodes
 	let BlackBox = document.querySelector(`.CaptureBox[team="black"]`).childNodes
 
@@ -187,5 +228,77 @@ function CalculateScore(){
 	})
 
 	document.getElementById("ScoreText").innerText = `Score, White: ${WhiteScore} | Black: ${BlackScore}`
+	
+}
+
+function BoardToJson(){
+
+	let Peices = Object.values(document.getElementsByClassName("piece"))
+	let JSONFen = {}
+
+	Peices.forEach( p => {
+
+    	let ImgSRC = p.src.replace(window.location.href + "SVGs", "")
+		let PieceType = ImgSRC.split("")[2]
+    	let PieceTeam = ImgSRC.split("")[1]
+
+    	if (PieceTeam == "w") {
+        	PieceType = PieceType.toUpperCase()
+    	}
+		
+    	JSONFen[p.id] = PieceType
+	})
+
+	return JSONFen
+	
+}
+	
+const DoAIMove = async () => {
+	
+    var NewGame = new Game()
+	let config = NewGame.exportJson()
+
+	console.log(config)	
+	config.pieces = BoardToJson()
+	config.turn = document.getElementById("AIPlayerTurn").value
+	console.log(config)	
+	
+	NewGame = new Game(config)
+
+	console.log("Calculating Best Move")
+
+	let TimeStart = Date.now()
+	
+	let AIMove = await Object.entries(NewGame.aiMove(3))[0]
+
+	let TimeEnd = Date.now()
+	
+	console.log("Running Move, Took " + (TimeEnd - TimeStart)/1000 + "s")
+	alert("Running Move, Took " + (TimeEnd - TimeStart)/1000 + "s")
+	
+	let ChosenP = document.querySelector(`div[type="cell"] > img[id="${AIMove[0]}"]`)
+	let ChosenC = document.querySelector(`div[id="${AIMove[1]}"]`)
+
+	ChosenC.append(ChosenP)
+	
+	if (ChosenC.childElementCount > 1) {
+		ChosenC.childNodes[0].id = "Captured"
+		document.querySelector(`.CaptureBox[team=${ChosenP.getAttribute("team")}]`).append(ChosenC.childNodes[0])
+
+	}
+	ChosenP.setAttribute("id", ChosenC.id)
+
+	CalculateScore()	
+	
+	console.log(AIMove)
+	
+}
+
+document.getElementById("CalcMove").onclick = DoAIMove
+//document.getElementById("CalcMove").addEventListener("touchstart", DoAIMove, false);
+
+console.error = (pram) => {
+
+	alert(pram)
 	
 }

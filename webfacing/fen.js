@@ -52,7 +52,7 @@ function fen2array(fen) {
     });
     return transform;
 }
-function fen2json(fen, options) {
+export default function fen2json(fen, options) {
     options = getOptions(options);
     var fenArray = fen2array(fen);
     var fenJson = {};

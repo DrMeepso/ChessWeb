@@ -7,28 +7,27 @@ const port = 3000;
 
 console.log(game.exportJson())
 
-// HTML File
+// JS File
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/webfacing/index.html');
 })
 
 // JS File
-app.get('/script.js', (req, res) => {
-    res.sendFile(__dirname + '/webfacing/script.js');
-})
-// JS File
-app.get('/fen.js', (req, res) => {
-    res.sendFile(__dirname + '/webfacing/fen.js');
+app.get('/:file', (req, res) => {
+    res.sendFile(__dirname + '/webfacing/'  + req.params.file);
 })
 
-// CSS File
-app.get('/style.css', (req, res) => {
-    res.sendFile(__dirname + '/webfacing/style.css');
+// images File
+app.get('/SVGs/:file', (req, res) => {
+    res.sendFile(__dirname + '/webfacing/SVGs/'  + req.params.file);
 })
 
-// SVG images in the folder called SVGs
-app.get('/SVGs/:name', (req, res) => {
-    res.sendFile(__dirname + '/webfacing/SVGs/' + req.params.name);
+// chess Files
+app.get('/chesslib/:file', (req, res) => {
+    res.sendFile(__dirname + '/webfacing/chesslib/'  + req.params.file);
+})
+app.get('/chesslib/const/:file', (req, res) => {
+    res.sendFile(__dirname + '/webfacing/chesslib/const/'  + req.params.file);
 })
 
 app.listen(port, () => {
