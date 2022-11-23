@@ -1,5 +1,5 @@
 import fen2json from "/fen.js"
-import {Game, aiMove, getFen, move, moves, status} from "/chesslib/js-chess-engine.js"
+import { Game, aiMove, getFen, move, moves, status } from "/chesslib/js-chess-engine.js"
 
 const ChessNumbers = ["A", "B", "C", "D", "E", "F", "G", "H"]
 
@@ -58,7 +58,7 @@ setTimeout(() => {
 
 	// load the chess pieces from fen string
 	let fen = fen2json("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
-	
+
 	// loop through the fen object and add the pieces to the board
 	for (let key in fen) {
 
@@ -83,13 +83,43 @@ setTimeout(() => {
 
 	}
 
+	var DropDown = document.getElementById("AIPlayerTurn")
+	var ChessHolder = document.getElementById("ChessHolder")
+	var CaptureHolder = document.getElementById("CaptureHolder")
+
+	DropDown.onchange = function () {
+
+		if (DropDown.value == "white") {
+
+			ChessHolder.style.flexDirection = "column"
+			if (window.innerWidth < 600) {
+				CaptureHolder.style.flexDirection = "row-reverse"
+			} else {
+				CaptureHolder.style.flexDirection = "column-reverse"
+			}
+
+
+		} else {
+
+			ChessHolder.style.flexDirection = "column-reverse"
+			if (window.innerWidth < 600) {
+				CaptureHolder.style.flexDirection = "row"
+			} else {
+				CaptureHolder.style.flexDirection = "column"
+			}
+
+		}
+		console.log("Update!")
+	
+	}
+
 }, 20)
 
 // create a function that allows a user to drag a piece and drop it 
 function drag(ev) {
-	
+
 	var OrigParent = ev.target.parentElement
-	
+
 	document.body.append(ev.target)
 	ev.preventDefault()
 
@@ -97,30 +127,29 @@ function drag(ev) {
 	document.addEventListener("touchmove", dragedPiece);
 
 	function dragedPiece(e) {
-		
+
 		if (e.pageX) {
 
-			//alert("PC")
-			
+
 			ev.target.style.position = "absolute"
 			ev.target.style.left = e.pageX - (70 / 2) + "px"
 			ev.target.style.top = e.pageY - (70 / 2) + "px"
-			
+
 		} else {
 
 			ev.target.style.position = "absolute"
 			ev.target.style.left = e.touches[0].pageX - (70 / 2) + "px"
 			ev.target.style.top = e.touches[0].pageY - (70 / 2) + "px"
-			
+
 		}
 	}
 
 
 	document.onmouseup = drop
 	document.addEventListener("touchend", drop, false);
-		
+
 	function drop(e) {
-		
+
 		document.onmousemove = null
 		document.onmouseup = null
 
@@ -132,7 +161,7 @@ function drag(ev) {
 		let ClosestCell = cells[0]
 		let ClosestCellDist = 99999999
 		let Capture = false
-		
+
 		cells.forEach(cell => {
 
 			let Two = ev.target.getBoundingClientRect();
@@ -144,12 +173,12 @@ function drag(ev) {
 			let c = Math.sqrt(a * a + b * b);
 			if (cell.childElementCount > 0) {
 
-				if (ev.target.getAttribute("team") != cell.childNodes[0].getAttribute("team")){
+				if (ev.target.getAttribute("team") != cell.childNodes[0].getAttribute("team")) {
 					Capture = true
 				} else {
 					c = 999999999
 				}
-				
+
 			}
 			if (c < ClosestCellDist) {
 
@@ -160,127 +189,129 @@ function drag(ev) {
 
 		})
 
-		if (ClosestCellDist < 100){
+		if (ClosestCellDist < 100) {
 
 			ClosestCell.append(ev.target)
-			
+
 		} else {
 
 			OrigParent.append(ev.target)
-			
+
 		}
 
 		if (ClosestCell.childElementCount > 1) {
 			ClosestCell.childNodes[0].id = "Captured"
 			document.querySelector(`.CaptureBox[team=${ev.target.getAttribute("team")}]`).append(ClosestCell.childNodes[0])
 		}
-		
+
 		ev.target.style.position = "relative"
 		ev.target.style.left = "0px"
 		ev.target.style.top = "0px"
 		ev.target.setAttribute("id", ClosestCell.id)
 
-		CalculateScore()		
+		CalculateScore()
 
 	}
 }
 
-function CalculateScore(){
-	
+function CalculateScore() {
+
 	let WhiteBox = document.querySelector(`.CaptureBox[team="white"]`).childNodes
 	let BlackBox = document.querySelector(`.CaptureBox[team="black"]`).childNodes
 
 	let WhiteScore = 0
 	let BlackScore = 0
 
-	Object.values(WhiteBox).forEach( e => {
+	Object.values(WhiteBox).forEach(e => {
 
 		let ImgSRC = e.src.replace(window.location.href + "SVGs", "")
 		let PieceType = ImgSRC.split("")[2]
 
-		switch(PieceType){
+		switch (PieceType) {
 
 			case "p": WhiteScore += 1; break
 			case "n": WhiteScore += 3; break
 			case "b": WhiteScore += 3; break
 			case "r": WhiteScore += 5; break
 			case "q": WhiteScore += 9; break
-				
+
 		}
-		
+
 	})
 
-	Object.values(BlackBox).forEach( e => {
+	Object.values(BlackBox).forEach(e => {
 
 		let ImgSRC = e.src.replace(window.location.href + "SVGs", "")
 		let PieceType = ImgSRC.split("")[2]
 
-		switch(PieceType){
+		switch (PieceType) {
 
 			case "p": BlackScore += 1; break
 			case "n": BlackScore += 3; break
 			case "b": BlackScore += 3; break
 			case "r": BlackScore += 5; break
 			case "q": BlackScore += 9; break
-				
+
 		}
-		
+
 	})
 
 	document.getElementById("ScoreText").innerText = `Score, White: ${WhiteScore} | Black: ${BlackScore}`
-	
+
 }
 
-function BoardToJson(){
+function BoardToJson() {
 
 	let Peices = Object.values(document.getElementsByClassName("piece"))
 	let JSONFen = {}
 
-	Peices.forEach( p => {
+	Peices.forEach(p => {
 
-    	let ImgSRC = p.src.replace(window.location.href + "SVGs", "")
-		let PieceType = ImgSRC.split("")[2]
-    	let PieceTeam = ImgSRC.split("")[1]
+		if (p.id != "Captured") {
 
-    	if (PieceTeam == "w") {
-        	PieceType = PieceType.toUpperCase()
-    	}
-		
-    	JSONFen[p.id] = PieceType
+			let ImgSRC = p.src.replace(window.location.href + "SVGs", "")
+			let PieceType = ImgSRC.split("")[2]
+			let PieceTeam = ImgSRC.split("")[1]
+
+			if (PieceTeam == "w") {
+				PieceType = PieceType.toUpperCase()
+			}
+
+			JSONFen[p.id] = PieceType
+		}
 	})
 
 	return JSONFen
-	
+
 }
-	
+
 const DoAIMove = async () => {
-	
-    var NewGame = new Game()
+
+	var NewGame = new Game()
 	let config = NewGame.exportJson()
 
-	console.log(config)	
 	config.pieces = BoardToJson()
 	config.turn = document.getElementById("AIPlayerTurn").value
-	console.log(config)	
-	
+	config.moves = {}
+
 	NewGame = new Game(config)
 
 	console.log("Calculating Best Move")
 
 	let TimeStart = Date.now()
-	
+
 	let AIMove = await Object.entries(NewGame.aiMove(3))[0]
 
 	let TimeEnd = Date.now()
-	
-	console.log("Running Move, Took " + (TimeEnd - TimeStart)/1000 + "s")
-	alert("Running Move, Took " + (TimeEnd - TimeStart)/1000 + "s")
-	
+
+	console.log("Running Move, Took " + (TimeEnd - TimeStart) / 1000 + "s")
+	//alert("Running Move, Took " + (TimeEnd - TimeStart)/1000 + "s")
+
 	let ChosenP = document.querySelector(`div[type="cell"] > img[id="${AIMove[0]}"]`)
 	let ChosenC = document.querySelector(`div[id="${AIMove[1]}"]`)
 
 	ChosenC.append(ChosenP)
-	
+
 	if (ChosenC.childElementCount > 1) {
 		ChosenC.childNodes[0].id = "Captured"
 		document.querySelector(`.CaptureBox[team=${ChosenP.getAttribute("team")}]`).append(ChosenC.childNodes[0])
@@ -288,10 +319,31 @@ const DoAIMove = async () => {
 	}
 	ChosenP.setAttribute("id", ChosenC.id)
 
-	CalculateScore()	
-	
+	CalculateScore()
+
 	console.log(AIMove)
-	
+
+	var PlayerGame = new Game()
+	let PlayerConfig = PlayerGame.exportJson()
+
+	let turn = "white"
+	if(document.getElementById("AIPlayerTurn").value == "white"){
+		turn = "black"
+	}
+
+	PlayerConfig.pieces = BoardToJson()
+	PlayerConfig.turn = turn
+	PlayerConfig.moves = {}
+
+	PlayerGame = new Game(PlayerConfig)
+	let GameInfo = PlayerGame.exportJson()
+	if (GameInfo.check == true) {
+		alert("AI has player in check")
+	}
+	if (GameInfo.checkMate == true) {
+		alert("AI has player in checkmate!")
+	}
+
 }
 
 document.getElementById("CalcMove").onclick = DoAIMove
@@ -300,5 +352,5 @@ document.getElementById("CalcMove").onclick = DoAIMove
 console.error = (pram) => {
 
 	alert(pram)
-	
+
 }
